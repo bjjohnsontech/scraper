@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <link rel="styleSheet" href="release/ui-grid-unstable.css"/>
+        <style>
+            .grid {
+                width: 100%;
+                height: 100%;
+            }
+            .preview {
+                height: 150px;
+                width: 150px;
+            }
+            .ui-grid-cell  {
+                display : table-cell;
+                height: auto !important;
+                overflow:visible;
+                position: static;
+            }
+            
+            .ui-grid-row {
+                display : table-row;
+                height: auto !important;
+                position: static;
+            }
+            
+            .ui-grid-cell-contents{
+                white-space: normal;
+                overflow:visible;
+                max-height: 150px;
+            }
+        </style>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular-touch.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular-animate.js"></script>
+        <script src="release/ui-grid-unstable.js"></script>
+        <script src="http://ui-grid.info/docs/grunt-scripts/csv.js"></script>
+        <script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
+        <script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
+    </head>
+    <body ng-app='app'>
+        <div ng-controller='mainController'>
+            <div id="grid1" ui-grid="gridOptions1" class="grid"></div>
+        </div>
+        <script>
+        var app = angular.module('app', ['ngAnimate', 'ngTouch', 'ui.grid']);
+        app.controller('mainController', ['$scope', '$http', 'uiGridConstants', function($scope, $http, uiGridConstants) {
+            $scope.gridOptions1 = {
+                enableSorting: true,
+                enableFiltering: true,
+                columnDefs: [
+                { field: 'image', enableSorting: false, enableFiltering: false, width: 200,
+                    cellTemplate: '<div>' + '<a target=_blank href="{{row.entity.link}}">'+
+                        '<img src="{{row.entity.image}}" class="preview"/></a></div>'
+                },
+                { field: 'id', width: 50 },
+                { field: 'auction', width: 50},
+                { field: 'desc', filter: {
+                    condition: uiGridConstants.filter.CONTAINS, placeholder: 'search'} },
+                { field: 'info', enableSorting: false, width: 150, filter: {
+                    condition: uiGridConstants.filter.CONTAINS, placeholder: 'search'}
+                },
+                { field: 'location', enableSorting: false, width: 350 }
+                ]
+            };
+            $http.get('/bid/items')
+            .success(function(data) {
+                $scope.gridOptions1.data = data;
+            })
+            .error(function(data, status, headers, config) {
+                console.log(status);
+            });
+        }]);
+    </script>
+    </body>
+    
+    
+</html>
