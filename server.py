@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/local/bin/python2.7
 import sys, json
 import pg
 
@@ -40,7 +40,8 @@ def connect():
     return pg.connect(
         host='localhost',
         dbname='bidFTA',
-        user='postgres'
+        user='bidder',
+        passwd='FTAbidder!'
     )
 if __name__ == "__main__":
     app.run()
