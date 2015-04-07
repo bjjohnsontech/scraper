@@ -17,6 +17,9 @@ cons = pg.DB(host='localhost',
 
 known = [x[0] for x in conn.query('SELECT num FROM auctions').getresult()]
 
+def cull():
+    print conn.query('DELETE FROM auctions WHERE datetime < now()')
+
 def getListings(listings, site, auction):
     items = []
     for listing in listings.select('.DataRow'):
@@ -50,7 +53,7 @@ def getListings(listings, site, auction):
 def main():
     response = requests.get('http://bidfta.com')
     
-    soup = bs4.BeautifulSoup(response.text)
+    soup = bs4.BeautifulSoup(response.text.replace(u'\u2019',''))
     aucs = {}
     auctions = (a for a in soup.select('div.content.active div.currentAuctionsListings div.auction'))
     for auction in auctions:
@@ -105,6 +108,7 @@ def main():
             nextP = requests.post(aucSite, data=data).text
             listings = bs4.BeautifulSoup(nextP)
             aucs[title[0]]['listings'].extend(getListings(listings, site, aucID))
+        print 'Auction: %s, %d listings' % (title[0], len(aucs[title[0]]['listings']))
         for items in aucs[title[0]]['listings']:
             try:
                 cons.insert('items', items)
